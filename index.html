@@ -1,0 +1,2166 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vachta Koupelny — Koupelny pro všechny generace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ══════════════════════════════════════════════
+       RESET & ROOT
+    ══════════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+
+    :root {
+      --navy:    #062030;
+      --navy2:   #0a2d44;
+      --gold:    #4fa8c5;
+      --gold2:   #72c0d8;
+      --cream:   #f0f7fc;
+      --cream2:  #dceef8;
+      --white:   #ffffff;
+      --text:    #1a1a1a;
+      --muted:   #6b7280;
+      --border:  rgba(200,164,106,0.18);
+      --shadow:  0 20px 60px rgba(0,0,0,0.12);
+      --r:       16px;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      background: var(--white);
+      overflow-x: hidden;
+    }
+
+    /* ── Custom cursor ── */
+    .cursor {
+      position: fixed; top: 0; left: 0; pointer-events: none; z-index: 9999;
+      mix-blend-mode: difference;
+    }
+    .cursor-dot {
+      width: 8px; height: 8px; background: #fff; border-radius: 50%;
+      transform: translate(-50%, -50%);
+      transition: transform 0.08s;
+    }
+    .cursor-ring {
+      position: fixed; top: 0; left: 0; pointer-events: none; z-index: 9998;
+      width: 40px; height: 40px;
+      border: 1.5px solid rgba(200,164,106,0.7);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      transition: transform 0.18s ease, width 0.2s, height 0.2s, border-color 0.2s;
+    }
+    .cursor-ring.hover {
+      width: 64px; height: 64px;
+      border-color: var(--gold);
+      background: rgba(200,164,106,0.06);
+    }
+
+    /* ══════════════════════════════════════════════
+       SCROLLBAR
+    ══════════════════════════════════════════════ */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: var(--cream); }
+    ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 10px; }
+
+    /* ══════════════════════════════════════════════
+       NAVBAR
+    ══════════════════════════════════════════════ */
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 60px;
+      height: 80px;
+      transition: all 0.4s ease;
+    }
+    .nav.scrolled {
+      background: rgba(11,27,43,0.96);
+      backdrop-filter: blur(20px);
+      height: 68px;
+      box-shadow: 0 4px 30px rgba(0,0,0,0.3);
+    }
+    .nav-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.55rem;
+      font-weight: 500;
+      color: var(--white);
+      text-decoration: none;
+      letter-spacing: 0.02em;
+    }
+    .nav-logo span { color: var(--gold); }
+
+    .nav-links {
+      display: flex; align-items: center; gap: 36px;
+      list-style: none;
+    }
+    .nav-links a {
+      color: rgba(255,255,255,0.75);
+      text-decoration: none;
+      font-size: 0.82rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+      position: relative;
+    }
+    .nav-links a::after {
+      content: ''; position: absolute; bottom: -3px; left: 0;
+      width: 0; height: 1px; background: var(--gold);
+      transition: width 0.3s ease;
+    }
+    .nav-links a:hover { color: #fff; }
+    .nav-links a:hover::after { width: 100%; }
+
+    .nav-cta {
+      background: var(--gold);
+      color: var(--navy) !important;
+      padding: 10px 24px;
+      border-radius: 4px;
+      font-weight: 600 !important;
+      letter-spacing: 0.04em !important;
+      transition: background 0.2s, transform 0.2s !important;
+    }
+    .nav-cta::after { display: none !important; }
+    .nav-cta:hover { background: var(--gold2) !important; transform: translateY(-1px); }
+
+    /* hamburger */
+    .nav-burger {
+      display: none; flex-direction: column; gap: 5px;
+      cursor: pointer; background: none; border: none; padding: 6px;
+    }
+    .nav-burger span { display: block; width: 24px; height: 2px; background: #fff; transition: all 0.3s; }
+
+    /* mobile menu */
+    .nav-mobile {
+      display: none; position: fixed; inset: 0; background: var(--navy);
+      z-index: 999; flex-direction: column; align-items: center; justify-content: center;
+      gap: 32px;
+    }
+    .nav-mobile.open { display: flex; }
+    .nav-mobile a {
+      color: #fff; text-decoration: none; font-size: 1.6rem;
+      font-family: 'Cormorant Garamond', serif; font-weight: 400;
+      transition: color 0.2s;
+    }
+    .nav-mobile a:hover { color: var(--gold); }
+
+    /* ══════════════════════════════════════════════
+       HERO
+    ══════════════════════════════════════════════ */
+    .hero {
+      position: relative;
+      height: 100vh; min-height: 700px;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+
+    /* Gradient background simulating luxury bathroom */
+    .hero-bg {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse at 70% 40%, rgba(30,60,80,0.6) 0%, transparent 60%),
+        linear-gradient(160deg, #0b1b2b 0%, #142638 30%, #1a3448 55%, #0f2035 100%);
+    }
+
+    /* Decorative marble pattern overlay */
+    .hero-bg::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        repeating-linear-gradient(105deg, rgba(255,255,255,0.015) 0px, transparent 1px, transparent 60px, rgba(255,255,255,0.015) 61px),
+        repeating-linear-gradient(15deg, rgba(200,164,106,0.04) 0px, transparent 1px, transparent 80px, rgba(200,164,106,0.04) 81px);
+    }
+
+    /* Animated light beam */
+    .hero-bg::after {
+      content: '';
+      position: absolute;
+      top: -20%; left: 35%;
+      width: 500px; height: 900px;
+      background: radial-gradient(ellipse, rgba(200,164,106,0.08) 0%, transparent 70%);
+      transform: rotate(-25deg);
+      animation: beam 8s ease-in-out infinite alternate;
+    }
+    @keyframes beam {
+      from { opacity: 0.6; transform: rotate(-25deg) translateY(0); }
+      to   { opacity: 1;   transform: rotate(-25deg) translateY(-30px); }
+    }
+
+    /* Right side decorative tiles visual */
+    .hero-tiles {
+      position: absolute; right: 0; top: 0; bottom: 0; width: 42%;
+      overflow: hidden;
+    }
+    .hero-tiles-inner {
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, #1a3a4e 0%, #0f2535 50%, #1c3d52 100%);
+      clip-path: polygon(8% 0%, 100% 0%, 100% 100%, 0% 100%);
+    }
+    .hero-tiles-inner::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        repeating-linear-gradient(0deg,   transparent, transparent 59px, rgba(255,255,255,0.04) 59px, rgba(255,255,255,0.04) 60px),
+        repeating-linear-gradient(90deg,  transparent, transparent 59px, rgba(255,255,255,0.04) 59px, rgba(255,255,255,0.04) 60px);
+    }
+    .hero-tiles-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to right, rgba(11,27,43,0.9) 0%, rgba(11,27,43,0.2) 40%, transparent 70%);
+      clip-path: polygon(8% 0%, 100% 0%, 100% 100%, 0% 100%);
+    }
+
+    .hero-content {
+      position: relative; z-index: 2;
+      text-align: left;
+      max-width: 680px;
+      padding: 0 60px;
+      margin-right: auto;
+      margin-left: 8vw;
+    }
+
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: 10px;
+      font-size: 0.72rem; font-weight: 600; letter-spacing: 0.18em;
+      text-transform: uppercase; color: var(--gold);
+      margin-bottom: 28px;
+    }
+    .hero-tag::before {
+      content: ''; width: 30px; height: 1px; background: var(--gold);
+    }
+
+    .hero-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.8rem, 5.5vw, 5rem);
+      font-weight: 400;
+      line-height: 1.1;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+    .hero-title em {
+      font-style: italic;
+      color: var(--gold);
+    }
+    .hero-title .line2 {
+      display: block;
+      font-weight: 300;
+      font-size: 0.85em;
+      color: rgba(255,255,255,0.7);
+    }
+
+    .hero-sub {
+      font-size: 1rem;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.7;
+      max-width: 460px;
+      margin-top: 22px;
+      margin-bottom: 44px;
+    }
+
+    .hero-actions {
+      display: flex; gap: 16px; flex-wrap: wrap; align-items: center;
+    }
+
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: var(--gold);
+      color: var(--navy);
+      padding: 16px 36px;
+      border-radius: 4px;
+      font-weight: 600;
+      font-size: 0.84rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+    .btn-primary:hover {
+      background: var(--gold2);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(200,164,106,0.35);
+    }
+    .btn-primary .arrow {
+      transition: transform 0.3s;
+    }
+    .btn-primary:hover .arrow { transform: translateX(4px); }
+
+    .btn-outline {
+      display: inline-flex; align-items: center; gap: 10px;
+      border: 1px solid rgba(255,255,255,0.3);
+      color: rgba(255,255,255,0.8);
+      padding: 16px 36px;
+      border-radius: 4px;
+      font-size: 0.84rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+    .btn-outline:hover {
+      border-color: rgba(200,164,106,0.6);
+      color: var(--gold);
+      background: rgba(200,164,106,0.06);
+    }
+
+    /* Floating stats strip */
+    .hero-stats {
+      position: absolute; bottom: 0; left: 0; right: 0; z-index: 3;
+      display: flex;
+    }
+    .hero-stat {
+      flex: 1;
+      background: rgba(255,255,255,0.04);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid rgba(200,164,106,0.2);
+      border-right: 1px solid rgba(200,164,106,0.1);
+      padding: 28px 36px;
+      transition: background 0.3s;
+    }
+    .hero-stat:last-child { border-right: none; }
+    .hero-stat:hover { background: rgba(200,164,106,0.08); }
+    .hero-stat-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.2rem;
+      font-weight: 500;
+      color: var(--gold);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .hero-stat-label {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    /* scroll indicator */
+    .scroll-hint {
+      position: absolute; bottom: 120px; right: 60px; z-index: 3;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      color: rgba(255,255,255,0.35);
+      font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase;
+    }
+    .scroll-line {
+      width: 1px; height: 50px;
+      background: linear-gradient(to bottom, rgba(200,164,106,0.7), transparent);
+      animation: scrollPulse 2s ease-in-out infinite;
+    }
+    @keyframes scrollPulse {
+      0%,100% { transform: scaleY(1); opacity: 0.7; }
+      50% { transform: scaleY(0.5); opacity: 0.3; }
+    }
+
+    /* ══════════════════════════════════════════════
+       REVEAL ANIMATION
+    ══════════════════════════════════════════════ */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+    .reveal-delay-5 { transition-delay: 0.5s; }
+
+    /* ══════════════════════════════════════════════
+       SECTION COMMONS
+    ══════════════════════════════════════════════ */
+    section { padding: 110px 60px; }
+
+    .section-tag {
+      display: inline-flex; align-items: center; gap: 12px;
+      font-size: 0.7rem; font-weight: 600; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--gold);
+      margin-bottom: 18px;
+    }
+    .section-tag::before {
+      content: ''; width: 28px; height: 1px; background: var(--gold);
+    }
+
+    .section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2rem, 3.5vw, 3.2rem);
+      font-weight: 400;
+      color: var(--navy);
+      line-height: 1.2;
+      margin-bottom: 20px;
+    }
+    .section-title em { font-style: italic; color: var(--gold); }
+
+    .section-sub {
+      font-size: 1rem;
+      color: var(--muted);
+      line-height: 1.75;
+      max-width: 560px;
+    }
+
+    /* ══════════════════════════════════════════════
+       SERVICES SECTION
+    ══════════════════════════════════════════════ */
+    .services {
+      background: var(--navy);
+      padding: 110px 60px;
+    }
+
+    .services-header {
+      display: flex; justify-content: space-between; align-items: flex-end;
+      margin-bottom: 70px; gap: 40px; flex-wrap: wrap;
+    }
+    .services-header .section-title { color: #fff; margin-bottom: 0; }
+    .services-header .section-sub { color: rgba(255,255,255,0.5); }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+    }
+
+    .service-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(200,164,106,0.1);
+      padding: 48px 40px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.4s ease;
+      cursor: none;
+    }
+    .service-card::before {
+      content: '';
+      position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      transform: scaleX(0); transform-origin: center;
+      transition: transform 0.4s ease;
+    }
+    .service-card:hover {
+      background: rgba(200,164,106,0.06);
+      border-color: rgba(200,164,106,0.3);
+      transform: translateY(-4px);
+    }
+    .service-card:hover::before { transform: scaleX(1); }
+
+    .service-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 4rem;
+      font-weight: 300;
+      color: rgba(200,164,106,0.15);
+      line-height: 1;
+      margin-bottom: 24px;
+      transition: color 0.4s;
+    }
+    .service-card:hover .service-num { color: rgba(200,164,106,0.3); }
+
+    .service-icon {
+      width: 52px; height: 52px;
+      background: rgba(200,164,106,0.12);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 24px;
+      transition: background 0.4s;
+    }
+    .service-card:hover .service-icon { background: rgba(200,164,106,0.22); }
+    .service-icon svg { width: 26px; height: 26px; stroke: var(--gold); fill: none; stroke-width: 1.5; }
+
+    .service-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.55rem;
+      font-weight: 500;
+      color: #fff;
+      margin-bottom: 14px;
+      line-height: 1.2;
+    }
+
+    .service-text {
+      font-size: 0.88rem;
+      color: rgba(255,255,255,0.5);
+      line-height: 1.75;
+      margin-bottom: 28px;
+    }
+
+    .service-link {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 0.78rem; font-weight: 600; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--gold); text-decoration: none;
+      transition: gap 0.3s;
+    }
+    .service-link:hover { gap: 14px; }
+
+    /* ══════════════════════════════════════════════
+       ABOUT SECTION
+    ══════════════════════════════════════════════ */
+    .about {
+      background: var(--cream);
+      padding: 110px 60px;
+    }
+
+    .about-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .about-visual {
+      position: relative;
+    }
+
+    .about-img-main {
+      width: 100%; aspect-ratio: 4/5;
+      border-radius: 4px;
+      background: linear-gradient(135deg, #1a3a4e 0%, #0f2535 40%, #2a4a5e 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    .about-img-main::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 49px, rgba(255,255,255,0.05) 49px, rgba(255,255,255,0.05) 50px),
+        repeating-linear-gradient(90deg, transparent, transparent 49px, rgba(255,255,255,0.05) 49px, rgba(255,255,255,0.05) 50px);
+    }
+    .about-img-main::after {
+      content: 'VACHTA\AKOUPELNY';
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.1rem;
+      letter-spacing: 0.3em;
+      color: rgba(200,164,106,0.35);
+      text-align: center;
+      white-space: pre;
+    }
+
+    .about-img-accent {
+      position: absolute;
+      right: -30px; bottom: 40px;
+      width: 48%;
+      aspect-ratio: 1;
+      border-radius: 4px;
+      background: var(--gold);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+    }
+    .about-accent-inner {
+      text-align: center; padding: 20px;
+    }
+    .about-accent-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 3.5rem;
+      font-weight: 400;
+      color: var(--navy);
+      line-height: 1;
+    }
+    .about-accent-text {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--navy);
+      opacity: 0.75;
+    }
+
+    .about-content {}
+
+    .about-features {
+      display: flex; flex-direction: column; gap: 24px;
+      margin-top: 40px; margin-bottom: 44px;
+    }
+
+    .about-feature {
+      display: flex; gap: 20px; align-items: flex-start;
+    }
+    .about-feature-icon {
+      flex-shrink: 0;
+      width: 44px; height: 44px;
+      background: rgba(200,164,106,0.12);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .about-feature-icon svg { width: 22px; height: 22px; stroke: var(--gold); fill: none; stroke-width: 1.5; }
+    .about-feature-title {
+      font-weight: 600; font-size: 0.9rem; color: var(--navy);
+      margin-bottom: 4px;
+    }
+    .about-feature-text {
+      font-size: 0.84rem; color: var(--muted); line-height: 1.65;
+    }
+
+    /* ══════════════════════════════════════════════
+       CATEGORIES / SORTIMENT
+    ══════════════════════════════════════════════ */
+    .categories {
+      background: var(--white);
+      padding: 110px 60px;
+    }
+
+    .categories-header {
+      text-align: center; margin-bottom: 70px;
+    }
+    .categories-header .section-sub {
+      margin: 0 auto;
+    }
+
+    .cat-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .cat-card {
+      position: relative;
+      aspect-ratio: 3/4;
+      border-radius: var(--r);
+      overflow: hidden;
+      cursor: none;
+      transition: transform 0.4s ease;
+    }
+    .cat-card:first-child, .cat-card:nth-child(5) {
+      grid-column: span 2;
+      aspect-ratio: 7/5;
+    }
+    .cat-card:hover { transform: scale(1.02); }
+
+    .cat-bg {
+      position: absolute; inset: 0;
+      background-size: cover;
+      background-position: center;
+      transition: transform 0.7s cubic-bezier(0.4,0,0.2,1);
+    }
+    .cat-card:hover .cat-bg { transform: scale(1.08); }
+
+    /* Pexels luxury photos — fallback color if image fails to load */
+    .cat-bg-1 {
+      background-color: #1a3347;
+      background-image: url('https://images.pexels.com/photos/33829528/pexels-photo-33829528.jpeg?auto=compress&cs=tinysrgb&w=800&h=1000&fit=crop');
+    }
+    .cat-bg-2 {
+      background-color: #2a4a3e;
+      background-image: url('https://images.pexels.com/photos/6186825/pexels-photo-6186825.jpeg?auto=compress&cs=tinysrgb&w=800&h=1000&fit=crop');
+    }
+    .cat-bg-3 {
+      background-color: #2a2018;
+      background-image: url('https://images.pexels.com/photos/7166635/pexels-photo-7166635.jpeg?auto=compress&cs=tinysrgb&w=800&h=1000&fit=crop');
+    }
+    .cat-bg-4 {
+      background-color: #1f2a42;
+      background-image: url('https://images.pexels.com/photos/19966751/pexels-photo-19966751.jpeg?auto=compress&cs=tinysrgb&w=800&h=1000&fit=crop');
+    }
+    .cat-bg-5 {
+      background-color: #1a1828;
+      background-image: url('https://images.pexels.com/photos/17240677/pexels-photo-17240677.jpeg?auto=compress&cs=tinysrgb&w=800&h=1000&fit=crop');
+    }
+    .cat-bg-6 {
+      background-color: #1a2020;
+      background-image: url('https://images.pexels.com/photos/4194982/pexels-photo-4194982.jpeg?auto=compress&cs=tinysrgb&w=800&h=1000&fit=crop');
+    }
+
+    .cat-overlay {
+      position: absolute; inset: 0;
+      background:
+        linear-gradient(to top, rgba(5,10,18,0.88) 0%, rgba(5,10,18,0.35) 45%, rgba(5,10,18,0.1) 100%);
+    }
+    .cat-overlay::after {
+      content: ''; position: absolute; inset: 0;
+      background: rgba(200,164,106,0.0);
+      transition: background 0.35s;
+    }
+    .cat-card:hover .cat-overlay::after {
+      background: rgba(200,164,106,0.12);
+    }
+
+    .cat-content {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 28px 24px;
+    }
+    .cat-icon {
+      width: 38px; height: 38px;
+      background: rgba(200,164,106,0.2);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 12px;
+    }
+    .cat-icon svg { width: 20px; height: 20px; stroke: var(--gold); fill: none; stroke-width: 1.5; }
+    .cat-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.3rem;
+      font-weight: 500;
+      color: #fff;
+      line-height: 1.2;
+    }
+    .cat-sub {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.5);
+      margin-top: 4px;
+    }
+
+    /* ══════════════════════════════════════════════
+       PROCESS SECTION
+    ══════════════════════════════════════════════ */
+    .process {
+      background: var(--navy);
+      padding: 110px 60px;
+    }
+    .process-header {
+      text-align: center; margin-bottom: 80px;
+    }
+    .process-header .section-title { color: #fff; }
+    .process-header .section-sub { color: rgba(255,255,255,0.5); margin: 0 auto; }
+
+    .process-steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      max-width: 1100px;
+      margin: 0 auto;
+      position: relative;
+    }
+    .process-steps::before {
+      content: '';
+      position: absolute; top: 34px; left: 15%; right: 15%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(200,164,106,0.3) 20%, rgba(200,164,106,0.3) 80%, transparent);
+    }
+
+    .process-step {
+      text-align: center;
+      padding: 0 24px;
+    }
+    .process-step-num {
+      width: 68px; height: 68px;
+      border-radius: 50%;
+      background: rgba(200,164,106,0.1);
+      border: 1px solid rgba(200,164,106,0.3);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 28px;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.4rem;
+      font-weight: 400;
+      color: var(--gold);
+      position: relative; z-index: 1;
+      transition: all 0.3s;
+    }
+    .process-step:hover .process-step-num {
+      background: rgba(200,164,106,0.2);
+      border-color: var(--gold);
+      box-shadow: 0 0 30px rgba(200,164,106,0.2);
+    }
+    .process-step-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.25rem;
+      font-weight: 500;
+      color: #fff;
+      margin-bottom: 12px;
+    }
+    .process-step-text {
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.45);
+      line-height: 1.7;
+    }
+
+    /* ══════════════════════════════════════════════
+       GALLERY / REALIZACE
+    ══════════════════════════════════════════════ */
+    .gallery {
+      background: var(--cream);
+      padding: 110px 60px;
+    }
+    .gallery-header {
+      display: flex; justify-content: space-between; align-items: flex-end;
+      margin-bottom: 50px; flex-wrap: wrap; gap: 24px;
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      grid-template-rows: 220px 220px;
+      gap: 12px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .gal-item { border-radius: 8px; overflow: hidden; position: relative; }
+    .gal-item:nth-child(1) { grid-column: 1 / 6; grid-row: 1; }
+    .gal-item:nth-child(2) { grid-column: 6 / 9; grid-row: 1; }
+    .gal-item:nth-child(3) { grid-column: 9 / 13; grid-row: 1; }
+    .gal-item:nth-child(4) { grid-column: 1 / 4; grid-row: 2; }
+    .gal-item:nth-child(5) { grid-column: 4 / 8; grid-row: 2; }
+    .gal-item:nth-child(6) { grid-column: 8 / 13; grid-row: 2; }
+
+    .gal-bg {
+      width: 100%; height: 100%;
+      transition: transform 0.5s ease;
+    }
+    .gal-item:hover .gal-bg { transform: scale(1.05); }
+    .gal-bg-1 { background: linear-gradient(135deg, #1e3a4a 0%, #0e2030 100%); }
+    .gal-bg-2 { background: linear-gradient(135deg, #2a3520 0%, #151f10 100%); }
+    .gal-bg-3 { background: linear-gradient(135deg, #3a2010 0%, #200e05 100%); }
+    .gal-bg-4 { background: linear-gradient(135deg, #1e2a3a 0%, #0e1520 100%); }
+    .gal-bg-5 { background: linear-gradient(135deg, #2a1e3a 0%, #150e20 100%); }
+    .gal-bg-6 { background: linear-gradient(135deg, #1a2e2a 0%, #0e1a18 100%); }
+
+    /* tile grid on gallery items */
+    .gal-bg::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,0.05) 39px, rgba(255,255,255,0.05) 40px),
+        repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,0.05) 39px, rgba(255,255,255,0.05) 40px);
+    }
+
+    .gal-item::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(to bottom right, transparent 40%, rgba(200,164,106,0.15));
+    }
+
+    .gal-label {
+      position: absolute; bottom: 16px; left: 16px;
+      background: rgba(11,27,43,0.8);
+      backdrop-filter: blur(8px);
+      padding: 6px 14px;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: #fff;
+      z-index: 1;
+    }
+
+    /* ══════════════════════════════════════════════
+       BRANDS / PARTNERS
+    ══════════════════════════════════════════════ */
+    .brands {
+      background: var(--white);
+      padding: 70px 60px;
+      border-top: 1px solid #f0ece4;
+      border-bottom: 1px solid #f0ece4;
+    }
+    .brands-inner {
+      display: flex; align-items: center; gap: 60px;
+      max-width: 1100px; margin: 0 auto; flex-wrap: wrap;
+      justify-content: center;
+    }
+    .brands-label {
+      font-size: 0.7rem; font-weight: 600; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--muted);
+      white-space: nowrap;
+    }
+    .brands-divider {
+      width: 1px; height: 40px; background: var(--cream2);
+    }
+    .brand-item {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.7rem;
+      font-weight: 500;
+      color: #ccc;
+      letter-spacing: 0.12em;
+      transition: color 0.3s;
+    }
+    .brand-item:hover { color: var(--navy); }
+
+    /* ══════════════════════════════════════════════
+       CONTACT
+    ══════════════════════════════════════════════ */
+    .contact {
+      background: var(--navy);
+      padding: 110px 60px;
+    }
+    .contact-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      max-width: 1100px;
+      margin: 0 auto;
+      align-items: start;
+    }
+
+    .contact-title { color: #fff; }
+    .contact-sub { color: rgba(255,255,255,0.5); margin-top: 16px; margin-bottom: 48px; }
+
+    .contact-info { display: flex; flex-direction: column; gap: 28px; }
+    .contact-item { display: flex; gap: 20px; align-items: flex-start; }
+    .contact-icon {
+      width: 48px; height: 48px; flex-shrink: 0;
+      background: rgba(200,164,106,0.1);
+      border-radius: 12px;
+      border: 1px solid rgba(200,164,106,0.2);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .contact-icon svg { width: 22px; height: 22px; stroke: var(--gold); fill: none; stroke-width: 1.5; }
+    .contact-item-label {
+      font-size: 0.68rem; font-weight: 600; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--gold); margin-bottom: 6px;
+    }
+    .contact-item-val {
+      font-size: 0.92rem; color: rgba(255,255,255,0.8); line-height: 1.6;
+    }
+    .contact-item-val a { color: rgba(255,255,255,0.8); text-decoration: none; }
+    .contact-item-val a:hover { color: var(--gold); }
+
+    /* Form */
+    .contact-form {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(200,164,106,0.15);
+      border-radius: var(--r);
+      padding: 44px 40px;
+    }
+    .form-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.6rem; font-weight: 500; color: #fff;
+      margin-bottom: 28px;
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label {
+      display: block; font-size: 0.7rem; font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: rgba(255,255,255,0.5); margin-bottom: 8px;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%; background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(200,164,106,0.15);
+      border-radius: 6px; padding: 12px 16px;
+      color: #fff; font-size: 0.88rem; font-family: 'DM Sans', sans-serif;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: rgba(200,164,106,0.5);
+      background: rgba(255,255,255,0.09);
+    }
+    .form-group input::placeholder,
+    .form-group textarea::placeholder { color: rgba(255,255,255,0.3); }
+    .form-group select option { background: var(--navy); }
+    .form-group textarea { resize: none; height: 100px; }
+    .form-submit {
+      width: 100%;
+      background: var(--gold);
+      color: var(--navy);
+      border: none;
+      padding: 16px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.84rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: all 0.3s;
+    }
+    .form-submit:hover {
+      background: var(--gold2);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(200,164,106,0.25);
+    }
+
+    /* ══════════════════════════════════════════════
+       FOOTER
+    ══════════════════════════════════════════════ */
+    footer {
+      background: #070f18;
+      padding: 60px 60px 30px;
+    }
+    .footer-top {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr 1fr;
+      gap: 50px;
+      padding-bottom: 50px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      margin-bottom: 30px;
+    }
+    .footer-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.6rem; font-weight: 500; color: #fff;
+      margin-bottom: 16px;
+    }
+    .footer-logo span { color: var(--gold); }
+    .footer-desc {
+      font-size: 0.83rem; color: rgba(255,255,255,0.4);
+      line-height: 1.75; max-width: 280px;
+    }
+    .footer-col-title {
+      font-size: 0.65rem; font-weight: 600; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--gold);
+      margin-bottom: 20px;
+    }
+    .footer-links { list-style: none; display: flex; flex-direction: column; gap: 11px; }
+    .footer-links a {
+      font-size: 0.83rem; color: rgba(255,255,255,0.45); text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: rgba(255,255,255,0.85); }
+    .footer-bottom {
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 12px;
+    }
+    .footer-copy {
+      font-size: 0.75rem; color: rgba(255,255,255,0.25);
+    }
+    .footer-copy a { color: rgba(200,164,106,0.6); text-decoration: none; }
+
+    /* ══════════════════════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════════════════════ */
+    @media (max-width: 1024px) {
+      section, .services, .about, .categories, .process, .gallery, .brands, .contact, footer { padding-left: 30px; padding-right: 30px; }
+      .nav { padding: 0 30px; }
+      .hero-content { margin-left: 4vw; }
+      .services-grid { grid-template-columns: 1fr 1fr; }
+      .cat-grid { grid-template-columns: repeat(2, 1fr); }
+      .cat-card:first-child, .cat-card:nth-child(5) { grid-column: span 1; aspect-ratio: 3/4; }
+      .about-inner { gap: 50px; }
+      .footer-top { grid-template-columns: 1fr 1fr; gap: 36px; }
+    }
+
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .nav-burger { display: flex; }
+      .hero-content { padding: 0 24px; margin-left: 0; max-width: 100%; text-align: center; }
+      .hero-title { font-size: 2.8rem; }
+      .hero-actions { justify-content: center; }
+      .hero-stats { flex-wrap: wrap; }
+      .hero-stat { flex-basis: 50%; }
+      .hero-tiles { display: none; }
+      .scroll-hint { display: none; }
+      .services-grid { grid-template-columns: 1fr; }
+      .about-inner { grid-template-columns: 1fr; }
+      .about-img-accent { display: none; }
+      .cat-grid { grid-template-columns: 1fr 1fr; }
+      .process-steps { grid-template-columns: 1fr 1fr; gap: 40px; }
+      .process-steps::before { display: none; }
+      .gallery-grid { grid-template-columns: 1fr 1fr; grid-template-rows: auto; }
+      .gal-item { grid-column: span 1 !important; grid-row: span 1 !important; aspect-ratio: 4/3; }
+      .contact-inner { grid-template-columns: 1fr; }
+      .form-row { grid-template-columns: 1fr; }
+      .footer-top { grid-template-columns: 1fr; }
+      body { cursor: auto; }
+      .cursor, .cursor-ring { display: none; }
+    }
+
+    @media (max-width: 480px) {
+      .hero-stat { flex-basis: 100%; }
+      .cat-grid { grid-template-columns: 1fr; }
+      .process-steps { grid-template-columns: 1fr; }
+    }
+
+    /* ══════════════════════════════════════════════
+       CUSTOMIZER PANEL
+    ══════════════════════════════════════════════ */
+    .cust-fab {
+      position: fixed; right: 0; top: 50%;
+      transform: translateY(-50%);
+      z-index: 10001;
+      background: var(--navy);
+      border: 1px solid rgba(200,164,106,0.5);
+      border-right: none;
+      border-radius: 10px 0 0 10px;
+      width: 46px; height: 48px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: -4px 0 20px rgba(0,0,0,0.3);
+    }
+    .cust-fab:hover { background: rgba(200,164,106,0.18); width: 52px; }
+    .cust-fab svg { width: 20px; height: 20px; stroke: var(--gold); fill: none; stroke-width: 1.5; }
+    .cust-fab.hidden { right: -60px; }
+
+    .cust-panel {
+      position: fixed; right: -320px; top: 0; bottom: 0;
+      width: 300px;
+      background: #0a1827;
+      border-left: 1px solid rgba(200,164,106,0.18);
+      z-index: 10000;
+      overflow-y: auto;
+      transition: right 0.38s cubic-bezier(0.4,0,0.2,1);
+      padding: 0 0 24px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(200,164,106,0.3) transparent;
+    }
+    .cust-panel.open { right: 0; }
+    .cust-panel::-webkit-scrollbar { width: 4px; }
+    .cust-panel::-webkit-scrollbar-thumb { background: rgba(200,164,106,0.25); border-radius: 4px; }
+
+    .cust-head {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 20px 20px 16px;
+      border-bottom: 1px solid rgba(200,164,106,0.12);
+      background: rgba(200,164,106,0.04);
+      position: sticky; top: 0; z-index: 1;
+    }
+    .cust-head-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.15rem; font-weight: 500; color: #fff;
+      letter-spacing: 0.01em;
+    }
+    .cust-head-title span { color: var(--gold); }
+    .cust-close-btn {
+      background: none; border: none; cursor: pointer;
+      color: rgba(255,255,255,0.4); font-size: 1.1rem;
+      padding: 4px 6px; border-radius: 4px;
+      transition: color 0.2s, background 0.2s; line-height:1;
+      font-family: sans-serif;
+    }
+    .cust-close-btn:hover { color: var(--gold); background: rgba(200,164,106,0.1); }
+
+    .cust-body { padding: 0 18px; }
+
+    .cust-sec {
+      padding: 18px 0 4px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .cust-sec:last-of-type { border-bottom: none; }
+    .cust-sec-label {
+      font-size: 0.58rem; font-weight: 700; letter-spacing: 0.18em;
+      text-transform: uppercase; color: var(--gold);
+      margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+    }
+    .cust-sec-label::after {
+      content: ''; flex: 1; height: 1px; background: rgba(200,164,106,0.12);
+    }
+
+    .cust-row {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 6px;
+    }
+    .cust-lbl { font-size: 0.76rem; color: rgba(255,255,255,0.65); }
+    .cust-val {
+      font-size: 0.68rem; color: var(--gold); font-weight: 600;
+      min-width: 38px; text-align: right; font-variant-numeric: tabular-nums;
+    }
+
+    input[type="range"].cust-range {
+      -webkit-appearance: none; appearance: none;
+      width: 100%; height: 4px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 2px; outline: none; border: none;
+      cursor: pointer; margin: 4px 0 12px;
+    }
+    input[type="range"].cust-range::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none;
+      width: 14px; height: 14px;
+      background: var(--gold); border-radius: 50%;
+      cursor: pointer; box-shadow: 0 0 6px rgba(200,164,106,0.4);
+    }
+    input[type="range"].cust-range::-moz-range-thumb {
+      width: 14px; height: 14px;
+      background: var(--gold); border-radius: 50%; border: none;
+    }
+
+    .cust-color-row {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    input[type="color"].cust-color {
+      width: 38px; height: 28px;
+      border: 1.5px solid rgba(200,164,106,0.3);
+      border-radius: 6px; padding: 2px 3px;
+      background: rgba(255,255,255,0.05); cursor: pointer;
+    }
+
+    .cust-presets {
+      display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px;
+    }
+    .cust-preset {
+      padding: 5px 12px;
+      border-radius: 20px;
+      border: 1px solid rgba(200,164,106,0.2);
+      background: transparent;
+      color: rgba(255,255,255,0.55);
+      font-size: 0.7rem; font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .cust-preset:hover { border-color: rgba(200,164,106,0.5); color: rgba(255,255,255,0.85); }
+    .cust-preset.active { background: rgba(200,164,106,0.15); border-color: var(--gold); color: #fff; }
+
+    .cust-sw-row {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 12px;
+    }
+    .cust-sw {
+      position: relative; width: 38px; height: 20px; flex-shrink: 0;
+    }
+    .cust-sw input { opacity: 0; width: 0; height: 0; position: absolute; }
+    .cust-sw .sw-track {
+      position: absolute; inset: 0;
+      background: rgba(255,255,255,0.12);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.25s;
+    }
+    .cust-sw .sw-track::before {
+      content: '';
+      position: absolute; left: 3px; top: 3px;
+      width: 14px; height: 14px;
+      background: rgba(255,255,255,0.7);
+      border-radius: 50%;
+      transition: transform 0.25s, background 0.25s;
+    }
+    .cust-sw input:checked + .sw-track { background: var(--gold); }
+    .cust-sw input:checked + .sw-track::before {
+      transform: translateX(18px);
+      background: var(--navy);
+    }
+
+    .cust-reset-btn {
+      width: 100%; margin-top: 16px;
+      padding: 11px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px;
+      color: rgba(255,255,255,0.4);
+      font-size: 0.74rem; letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .cust-reset-btn:hover { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.8); }
+  </style>
+</head>
+<body>
+
+<!-- Custom cursor (hidden by default) -->
+<div class="cursor" id="cursor" style="display:none"><div class="cursor-dot"></div></div>
+<div class="cursor-ring" id="cursorRing" style="display:none"></div>
+
+<!-- ═══════════════════ NAVBAR ═══════════════════ -->
+<nav class="nav" id="nav">
+  <a href="#" class="nav-logo">Vachta <span>·</span> Koupelny</a>
+  <ul class="nav-links">
+    <li><a href="#sluzby">Služby</a></li>
+    <li><a href="#o-nas">O nás</a></li>
+    <li><a href="#sortiment">Sortiment</a></li>
+    <li><a href="#realizace">Realizace</a></li>
+    <li><a href="#kontakt" class="nav-cta">Kontakt</a></li>
+  </ul>
+  <button class="nav-burger" id="burger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- Mobile menu -->
+<div class="nav-mobile" id="mobileMenu">
+  <a href="#sluzby"    onclick="closeMobileMenu()">Služby</a>
+  <a href="#o-nas"     onclick="closeMobileMenu()">O nás</a>
+  <a href="#sortiment" onclick="closeMobileMenu()">Sortiment</a>
+  <a href="#realizace" onclick="closeMobileMenu()">Realizace</a>
+  <a href="#kontakt"   onclick="closeMobileMenu()">Kontakt</a>
+</div>
+
+<!-- ═══════════════════ HERO ═══════════════════ -->
+<section class="hero" id="uvod">
+  <div class="hero-bg"></div>
+  <div class="hero-tiles">
+    <div class="hero-tiles-inner"></div>
+    <div class="hero-tiles-overlay"></div>
+  </div>
+
+  <div class="hero-content">
+    <div class="hero-tag">Koupelny pro všechny generace</div>
+    <h1 class="hero-title">
+      Vaše vysněná<br>
+      <em>koupelna</em>
+      <span class="line2">začíná zde.</span>
+    </h1>
+    <p class="hero-sub">
+      Navrhujeme, dodáváme a realizujeme koupelny na míru.
+      Od prvního skice přes 3D vizualizaci až po finální předání klíčů.
+    </p>
+    <div class="hero-actions">
+      <a href="#kontakt" class="btn-primary">
+        Nezávazná konzultace
+        <span class="arrow">→</span>
+      </a>
+      <a href="#realizace" class="btn-outline">
+        Naše realizace
+      </a>
+    </div>
+  </div>
+
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="hero-stat-num" data-count="15">0</div>
+      <div class="hero-stat-label">let zkušeností</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num" data-count="850">0</div>
+      <div class="hero-stat-label">realizovaných koupelen</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num" data-count="200">0</div>
+      <div class="hero-stat-label">značek v nabídce</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num" data-count="98">0</div>
+      <div class="hero-stat-label">% spokojených zákazníků</div>
+    </div>
+  </div>
+
+  <div class="scroll-hint">
+    <div class="scroll-line"></div>
+    <span>Scroll</span>
+  </div>
+</section>
+
+<!-- ═══════════════════ SERVICES ═══════════════════ -->
+<section class="services" id="sluzby">
+  <div class="services-header reveal">
+    <div>
+      <div class="section-tag">Co nabízíme</div>
+      <h2 class="section-title" style="color:#fff">Komplexní <em>péče</em><br>o vaši koupelnu</h2>
+    </div>
+    <p class="section-sub">Od návrhu přes dodávku materiálu až po klíč v ruce. Postaráme se o vás v každém kroku.</p>
+  </div>
+
+  <div class="services-grid">
+    <div class="service-card reveal">
+      <div class="service-num">01</div>
+      <div class="service-icon">
+        <svg viewBox="0 0 24 24"><path d="M2 2h9v9H2zM13 2h9v9h-9zM2 13h9v9H2zM17 13a4 4 0 1 1 0 8 4 4 0 0 1 0-8z"/></svg>
+      </div>
+      <h3 class="service-title">3D Návrhy koupelny</h3>
+      <p class="service-text">Fotorealistická 3D vizualizace vaší budoucí koupelny. Uvidíte výsledek ještě před zahájením prací — barvy, materiály, osvětlení.</p>
+      <a href="#kontakt" class="service-link">Zjistit více <span>→</span></a>
+    </div>
+    <div class="service-card reveal reveal-delay-1">
+      <div class="service-num">02</div>
+      <div class="service-icon">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      </div>
+      <h3 class="service-title">Realizace na klíč</h3>
+      <p class="service-text">Kompletní realizace koupelny včetně demontáže, instalatérských prací, obkladů a sanitární techniky. Vše od jednoho dodavatele.</p>
+      <a href="#kontakt" class="service-link">Zjistit více <span>→</span></a>
+    </div>
+    <div class="service-card reveal reveal-delay-2">
+      <div class="service-num">03</div>
+      <div class="service-icon">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+      </div>
+      <h3 class="service-title">Konzultace zdarma</h3>
+      <p class="service-text">Osobní konzultace s naším designérem koupelen. Poradíme s výběrem materiálů, dispozicí i osvětlením bez jakýchkoli závazků.</p>
+      <a href="#kontakt" class="service-link">Sjednat schůzku <span>→</span></a>
+    </div>
+    <div class="service-card reveal reveal-delay-1">
+      <div class="service-num">04</div>
+      <div class="service-icon">
+        <svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+      </div>
+      <h3 class="service-title">Akční nabídky</h3>
+      <p class="service-text">Pravidelné akce a výprodeje prémiových koupelnových doplňků. Sledujte naše aktuální nabídky a ušetřete až 40 %.</p>
+      <a href="#kontakt" class="service-link">Zobrazit akce <span>→</span></a>
+    </div>
+    <div class="service-card reveal reveal-delay-2">
+      <div class="service-num">05</div>
+      <div class="service-icon">
+        <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+      </div>
+      <h3 class="service-title">Dropshipping & B2B</h3>
+      <p class="service-text">Velkoobchodní spolupráce pro firmy a živnostníky. Výhodné podmínky, vlastní dropshipping a affiliate program.</p>
+      <a href="#kontakt" class="service-link">Obchodní spolupráce <span>→</span></a>
+    </div>
+    <div class="service-card reveal reveal-delay-3">
+      <div class="service-num">06</div>
+      <div class="service-icon">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      </div>
+      <h3 class="service-title">Obchodní podmínky</h3>
+      <p class="service-text">Transparentní obchodní podmínky, jasné záruky a bezproblémové reklamace. Férovost a otevřenost je naší prioritou.</p>
+      <a href="#kontakt" class="service-link">Více informací <span>→</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ ABOUT ═══════════════════ -->
+<section class="about" id="o-nas">
+  <div class="about-inner">
+    <div class="about-visual reveal">
+      <div class="about-img-main"></div>
+      <div class="about-img-accent">
+        <div class="about-accent-inner">
+          <div class="about-accent-num">15+</div>
+          <div class="about-accent-text">let na trhu</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="about-content">
+      <div class="section-tag reveal">Kdo jsme</div>
+      <h2 class="section-title reveal reveal-delay-1">Váš spolehlivý<br>partner pro <em>koupelny</em></h2>
+      <p class="section-sub reveal reveal-delay-2">Jsme rodinná firma s dlouholetou tradicí v oblasti koupelen. Pomáháme zákazníkům vytvořit prostor, kde se každé ráno budou cítit skvěle — bez ohledu na věk, styl nebo rozpočet.</p>
+
+      <div class="about-features">
+        <div class="about-feature reveal reveal-delay-2">
+          <div class="about-feature-icon">
+            <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          </div>
+          <div>
+            <div class="about-feature-title">Individuální přístup</div>
+            <div class="about-feature-text">Každá koupelna je originál. Navrhneme ji přesně podle vašich představ, dispozic a životního stylu.</div>
+          </div>
+        </div>
+        <div class="about-feature reveal reveal-delay-3">
+          <div class="about-feature-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div>
+            <div class="about-feature-title">Záruka kvality</div>
+            <div class="about-feature-text">Spolupracujeme pouze s prověřenými dodavateli a nabízíme produkty s certifikací a zárukami.</div>
+          </div>
+        </div>
+        <div class="about-feature reveal reveal-delay-4">
+          <div class="about-feature-icon">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div>
+            <div class="about-feature-title">Rychlá realizace</div>
+            <div class="about-feature-text">Zkušený tým zvládne kompletní rekonstrukci koupelny průměrně za 10–14 pracovních dní.</div>
+          </div>
+        </div>
+      </div>
+
+      <a href="#kontakt" class="btn-primary reveal reveal-delay-4" style="display:inline-flex; background:var(--navy); color:#fff;">
+        Domluvit konzultaci <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ CATEGORIES ═══════════════════ -->
+<section class="categories" id="sortiment">
+  <div class="categories-header">
+    <div class="section-tag reveal">Sortiment</div>
+    <h2 class="section-title reveal reveal-delay-1">Vše pro vaši <em>koupelnu</em></h2>
+    <p class="section-sub reveal reveal-delay-2">Rozsáhlý výběr koupelnového vybavení od světových značek. Od sprchových koutů přes vany až po chytré koupelnové systémy.</p>
+  </div>
+
+  <div class="cat-grid">
+    <div class="cat-card reveal">
+      <div class="cat-bg cat-bg-1"></div>
+      <div class="cat-overlay"></div>
+      <div class="cat-content">
+        <div class="cat-icon">
+          <svg viewBox="0 0 24 24"><path d="M4 12h16M4 12a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4M4 12v5a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-5"/><line x1="8" y1="17" x2="8" y2="20"/><line x1="16" y1="17" x2="16" y2="20"/></svg>
+        </div>
+        <div class="cat-name">Vany & Sprchy</div>
+        <div class="cat-sub">Volně stojící vany, hydromasáže, sprchové kouty</div>
+      </div>
+    </div>
+    <div class="cat-card reveal reveal-delay-1">
+      <div class="cat-bg cat-bg-2"></div>
+      <div class="cat-overlay"></div>
+      <div class="cat-content">
+        <div class="cat-icon">
+          <svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+        </div>
+        <div class="cat-name">Umyvadla & WC</div>
+        <div class="cat-sub">Závěsné, volně stojící, designové série</div>
+      </div>
+    </div>
+    <div class="cat-card reveal reveal-delay-2">
+      <div class="cat-bg cat-bg-3"></div>
+      <div class="cat-overlay"></div>
+      <div class="cat-content">
+        <div class="cat-icon">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><path d="M3 9h18M9 21V9"/></svg>
+        </div>
+        <div class="cat-name">Obklady & Dlažba</div>
+        <div class="cat-sub">Keramika, velkoformátové desky, mozaiky</div>
+      </div>
+    </div>
+    <div class="cat-card reveal reveal-delay-3">
+      <div class="cat-bg cat-bg-4"></div>
+      <div class="cat-overlay"></div>
+      <div class="cat-content">
+        <div class="cat-icon">
+          <svg viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>
+        </div>
+        <div class="cat-name">Nábytek & Zrcadla</div>
+        <div class="cat-sub">Koupelnové skříňky, zrcadla s osvětlením</div>
+      </div>
+    </div>
+    <div class="cat-card reveal reveal-delay-1">
+      <div class="cat-bg cat-bg-5"></div>
+      <div class="cat-overlay"></div>
+      <div class="cat-content">
+        <div class="cat-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+        </div>
+        <div class="cat-name">Osvětlení</div>
+        <div class="cat-sub">LED svítidla, inteligentní osvětlení, bodovky</div>
+      </div>
+    </div>
+    <div class="cat-card reveal reveal-delay-2">
+      <div class="cat-bg cat-bg-6"></div>
+      <div class="cat-overlay"></div>
+      <div class="cat-content">
+        <div class="cat-icon">
+          <svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+        </div>
+        <div class="cat-name">Příslušenství</div>
+        <div class="cat-sub">Baterie, držáky ručníků, doplňky</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ PROCESS ═══════════════════ -->
+<section class="process">
+  <div class="process-header">
+    <div class="section-tag reveal">Jak pracujeme</div>
+    <h2 class="section-title reveal reveal-delay-1">Jednoduché kroky<br>k vaší <em>vysněné koupelně</em></h2>
+    <p class="section-sub reveal reveal-delay-2">Průhledný a bezstresový proces od prvního kontaktu až po dokončenou koupelnu.</p>
+  </div>
+  <div class="process-steps">
+    <div class="process-step reveal">
+      <div class="process-step-num">01</div>
+      <h4 class="process-step-title">Konzultace</h4>
+      <p class="process-step-text">Probereme vaše přání, dispozice a rozpočet. Zdarma a bez závazků, osobně nebo online.</p>
+    </div>
+    <div class="process-step reveal reveal-delay-1">
+      <div class="process-step-num">02</div>
+      <h4 class="process-step-title">3D Návrh</h4>
+      <p class="process-step-text">Vytvoříme fotorealistický 3D návrh a cenovou kalkulaci. Doladíme vše podle vašich připomínek.</p>
+    </div>
+    <div class="process-step reveal reveal-delay-2">
+      <div class="process-step-num">03</div>
+      <h4 class="process-step-title">Realizace</h4>
+      <p class="process-step-text">Náš tým provede veškeré práce – od bourání přes instalaci až po finální povrchy.</p>
+    </div>
+    <div class="process-step reveal reveal-delay-3">
+      <div class="process-step-num">04</div>
+      <h4 class="process-step-title">Předání</h4>
+      <p class="process-step-text">Provedeme vás hotovou koupelnou, předáme dokumentaci a zajistíme záruční servis.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ GALLERY ═══════════════════ -->
+<section class="gallery" id="realizace">
+  <div class="gallery-header">
+    <div>
+      <div class="section-tag reveal">Naše práce</div>
+      <h2 class="section-title reveal reveal-delay-1">Vybrané <em>realizace</em></h2>
+    </div>
+    <a href="#kontakt" class="btn-primary reveal" style="background:var(--navy); color:#fff; flex-shrink:0;">
+      Všechny projekty <span class="arrow">→</span>
+    </a>
+  </div>
+
+  <div class="gallery-grid">
+    <div class="gal-item reveal">
+      <div class="gal-bg gal-bg-1"></div>
+      <div class="gal-label">Praha — Vinohrady</div>
+    </div>
+    <div class="gal-item reveal reveal-delay-1">
+      <div class="gal-bg gal-bg-2"></div>
+      <div class="gal-label">Brno — Bystrc</div>
+    </div>
+    <div class="gal-item reveal reveal-delay-2">
+      <div class="gal-bg gal-bg-3"></div>
+      <div class="gal-label">Praha — Smíchov</div>
+    </div>
+    <div class="gal-item reveal reveal-delay-1">
+      <div class="gal-bg gal-bg-4"></div>
+      <div class="gal-label">Olomouc</div>
+    </div>
+    <div class="gal-item reveal reveal-delay-2">
+      <div class="gal-bg gal-bg-5"></div>
+      <div class="gal-label">Praha — Dejvice</div>
+    </div>
+    <div class="gal-item reveal reveal-delay-3">
+      <div class="gal-bg gal-bg-6"></div>
+      <div class="gal-label">Plzeň</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ BRANDS ═══════════════════ -->
+<div class="brands">
+  <div class="brands-inner">
+    <span class="brands-label">Naši partneři</span>
+    <div class="brands-divider"></div>
+    <span class="brand-item">SAPHO</span>
+    <span class="brand-item">VIVA</span>
+    <span class="brand-item">GROHE</span>
+    <span class="brand-item">HANSGROHE</span>
+    <span class="brand-item">GEBERIT</span>
+    <span class="brand-item">VILLEROY</span>
+  </div>
+</div>
+
+<!-- ═══════════════════ CONTACT ═══════════════════ -->
+<section class="contact" id="kontakt">
+  <div class="contact-inner">
+    <div>
+      <div class="section-tag reveal">Kontakt</div>
+      <h2 class="section-title contact-title reveal reveal-delay-1">Pojďme vytvořit<br>vaši <em>koupelnu</em></h2>
+      <p class="contact-sub reveal reveal-delay-2">Napište nám nebo zavolejte. Rádi vám poradíme, připravíme nezávaznou nabídku a domluvíme osobní konzultaci.</p>
+
+      <div class="contact-info">
+        <div class="contact-item reveal reveal-delay-2">
+          <div class="contact-icon">
+            <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          </div>
+          <div>
+            <div class="contact-item-label">Telefon</div>
+            <div class="contact-item-val"><a href="tel:+420734311177">+420 734 311 177</a></div>
+          </div>
+        </div>
+        <div class="contact-item reveal reveal-delay-3">
+          <div class="contact-icon">
+            <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </div>
+          <div>
+            <div class="contact-item-label">E-mail</div>
+            <div class="contact-item-val"><a href="mailto:studio@vachta-koupelny.cz">studio@vachta-koupelny.cz</a></div>
+          </div>
+        </div>
+        <div class="contact-item reveal reveal-delay-4">
+          <div class="contact-icon">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div>
+            <div class="contact-item-label">Provozní doba</div>
+            <div class="contact-item-val">Po–Pá: 08:00 – 17:00</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="contact-form reveal reveal-delay-2">
+      <div class="form-title">Napište nám</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Jméno *</label>
+          <input type="text" placeholder="Jan Novák" />
+        </div>
+        <div class="form-group">
+          <label>Telefon</label>
+          <input type="tel" placeholder="+420 xxx xxx xxx" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>E-mail *</label>
+        <input type="email" placeholder="jan.novak@email.cz" />
+      </div>
+      <div class="form-group">
+        <label>Zájem o</label>
+        <select>
+          <option>3D návrh koupelny</option>
+          <option>Realizace na klíč</option>
+          <option>Konzultace zdarma</option>
+          <option>Nákup sortimentu</option>
+          <option>Obchodní spolupráce (B2B)</option>
+          <option>Jiné</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Zpráva</label>
+        <textarea placeholder="Popište stručně vaši koupelnu a přání…"></textarea>
+      </div>
+      <button class="form-submit">Odeslat poptávku →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ FOOTER ═══════════════════ -->
+<footer>
+  <div class="footer-top">
+    <div>
+      <div class="footer-logo">Vachta <span>·</span> Koupelny</div>
+      <p class="footer-desc">Koupelny pro všechny generace. Navrhujeme, dodáváme a realizujeme koupelny s láskou k detailu od roku 2009.</p>
+    </div>
+    <div>
+      <div class="footer-col-title">Navigace</div>
+      <ul class="footer-links">
+        <li><a href="#sluzby">Služby</a></li>
+        <li><a href="#o-nas">O nás</a></li>
+        <li><a href="#sortiment">Sortiment</a></li>
+        <li><a href="#realizace">Realizace</a></li>
+        <li><a href="#kontakt">Kontakt</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Služby</div>
+      <ul class="footer-links">
+        <li><a href="#sluzby">3D Návrhy</a></li>
+        <li><a href="#sluzby">Realizace na klíč</a></li>
+        <li><a href="#sluzby">Konzultace</a></li>
+        <li><a href="#sluzby">B2B spolupráce</a></li>
+        <li><a href="#sluzby">Akční nabídky</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Kontakt</div>
+      <ul class="footer-links">
+        <li><a href="tel:+420734311177">+420 734 311 177</a></li>
+        <li><a href="mailto:studio@vachta-koupelny.cz">studio@vachta-koupelny.cz</a></li>
+        <li><a href="#">Po–Pá: 08:00 – 17:00</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-copy">© 2025 Vachta Koupelny. Všechna práva vyhrazena.</div>
+    <div class="footer-copy"><a href="#">Obchodní podmínky</a> &nbsp;·&nbsp; <a href="#">Ochrana osobních údajů</a></div>
+  </div>
+</footer>
+
+<script>
+  // ── Custom cursor ──────────────────────────────
+  const cursor = document.getElementById('cursor').querySelector('.cursor-dot');
+  const ring   = document.getElementById('cursorRing');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.left = mx + 'px';
+    cursor.style.top  = my + 'px';
+  });
+
+  // Smooth ring follow
+  function animateRing() {
+    rx += (mx - rx) * 0.12;
+    ry += (my - ry) * 0.12;
+    ring.style.left = rx + 'px';
+    ring.style.top  = ry + 'px';
+    requestAnimationFrame(animateRing);
+  }
+  animateRing();
+
+  // Hover expand
+  document.querySelectorAll('a, button, .service-card, .cat-card, .gal-item, .brand-item').forEach(el => {
+    el.addEventListener('mouseenter', () => ring.classList.add('hover'));
+    el.addEventListener('mouseleave', () => ring.classList.remove('hover'));
+  });
+
+  // ── Navbar scroll ─────────────────────────────
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 60);
+  });
+
+  // ── Mobile menu ───────────────────────────────
+  const burger     = document.getElementById('burger');
+  const mobileMenu = document.getElementById('mobileMenu');
+  burger.addEventListener('click', () => {
+    mobileMenu.classList.toggle('open');
+    const spans = burger.querySelectorAll('span');
+    if (mobileMenu.classList.contains('open')) {
+      spans[0].style.transform = 'rotate(45deg) translate(5px,5px)';
+      spans[1].style.opacity   = '0';
+      spans[2].style.transform = 'rotate(-45deg) translate(5px,-5px)';
+    } else {
+      spans.forEach(s => { s.style.transform = ''; s.style.opacity = ''; });
+    }
+  });
+  function closeMobileMenu() {
+    mobileMenu.classList.remove('open');
+    burger.querySelectorAll('span').forEach(s => { s.style.transform = ''; s.style.opacity = ''; });
+  }
+
+  // ── Scroll reveal ─────────────────────────────
+  const revealEls = document.querySelectorAll('.reveal');
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  revealEls.forEach(el => revealObserver.observe(el));
+
+  // ── Count-up animation ────────────────────────
+  function countUp(el, target, suffix) {
+    let current = 0;
+    const duration = 1800;
+    const step = target / (duration / 16);
+    const timer = setInterval(() => {
+      current = Math.min(current + step, target);
+      el.textContent = Math.floor(current) + (suffix || '');
+      if (current >= target) clearInterval(timer);
+    }, 16);
+  }
+
+  const statsObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        document.querySelectorAll('[data-count]').forEach(el => {
+          const target = parseInt(el.dataset.count);
+          const suffix = el.textContent.includes('%') ? '%' : '+';
+          countUp(el, target, el.dataset.count >= 100 ? '+' : (el.dataset.count < 20 ? '+' : '+'));
+        });
+        statsObserver.disconnect();
+      }
+    });
+  }, { threshold: 0.3 });
+
+  const statsSection = document.querySelector('.hero-stats');
+  if (statsSection) statsObserver.observe(statsSection);
+
+  // ── Smooth parallax on hero ───────────────────
+  let parallaxEnabled = true;
+  const heroBg = document.querySelector('.hero-bg');
+  window.addEventListener('scroll', () => {
+    const scrolled = window.scrollY;
+    if (parallaxEnabled && scrolled < window.innerHeight && heroBg) {
+      heroBg.style.transform = 'translateY(' + scrolled * 0.3 + 'px)';
+    }
+  });
+
+  // ── Form submit ───────────────────────────────
+  document.querySelector('.form-submit').addEventListener('click', () => {
+    const btn = document.querySelector('.form-submit');
+    btn.textContent = '✓ Odesláno — brzy se ozveme!';
+    btn.style.background = '#3cb843';
+    btn.style.color = '#fff';
+    setTimeout(() => {
+      btn.textContent = 'Odeslat poptávku →';
+      btn.style.background = '';
+      btn.style.color = '';
+    }, 4000);
+  });
+</script>
+
+<!-- ═══════════════════ CUSTOMIZER ═══════════════════ -->
+<button class="cust-fab" id="custFab" title="Přizpůsobit web">
+  <svg viewBox="0 0 24 24"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+</button>
+
+<div class="cust-panel" id="custPanel">
+  <div class="cust-head">
+    <div class="cust-head-title">Přizpůsobit <span>web</span></div>
+    <button class="cust-close-btn" id="custClose">✕</button>
+  </div>
+  <div class="cust-body">
+
+    <!-- TYPOGRAFIE -->
+    <div class="cust-sec">
+      <div class="cust-sec-label">Typografie</div>
+      <div class="cust-row">
+        <span class="cust-lbl">Velikost textu</span>
+        <span class="cust-val" id="vFontSize">16px</span>
+      </div>
+      <input type="range" class="cust-range" id="rFontSize" min="13" max="20" value="16" step="1">
+
+      <div class="cust-row">
+        <span class="cust-lbl">Řádkování</span>
+        <span class="cust-val" id="vLineH">1.60</span>
+      </div>
+      <input type="range" class="cust-range" id="rLineH" min="130" max="200" value="160" step="5">
+
+      <div class="cust-row">
+        <span class="cust-lbl">Tloušťka písma</span>
+        <span class="cust-val" id="vFontW">400</span>
+      </div>
+      <input type="range" class="cust-range" id="rFontW" min="300" max="600" value="400" step="100">
+    </div>
+
+    <!-- BARVY -->
+    <div class="cust-sec">
+      <div class="cust-sec-label">Barvy</div>
+      <div class="cust-color-row">
+        <span class="cust-lbl">Zlatá / akcent</span>
+        <input type="color" class="cust-color" id="cGold" value="#4fa8c5">
+      </div>
+      <div class="cust-color-row">
+        <span class="cust-lbl">Tmavá (navy)</span>
+        <input type="color" class="cust-color" id="cNavy" value="#062030">
+      </div>
+      <div class="cust-color-row">
+        <span class="cust-lbl">Světlá (cream)</span>
+        <input type="color" class="cust-color" id="cCream" value="#f0f7fc">
+      </div>
+      <div style="margin-top:4px;">
+        <div class="cust-lbl" style="margin-bottom:8px;">Barevné téma</div>
+        <div class="cust-presets">
+          <button class="cust-preset" data-scheme="classic">Klasické</button>
+          <button class="cust-preset active" data-scheme="ocean">Oceán</button>
+          <button class="cust-preset" data-scheme="forest">Přírodní</button>
+          <button class="cust-preset" data-scheme="mono">Mono</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LAYOUT -->
+    <div class="cust-sec">
+      <div class="cust-sec-label">Layout</div>
+      <div class="cust-row">
+        <span class="cust-lbl">Zaoblení rohů</span>
+        <span class="cust-val" id="vRadius">16px</span>
+      </div>
+      <input type="range" class="cust-range" id="rRadius" min="0" max="32" value="16" step="2">
+
+      <div class="cust-row">
+        <span class="cust-lbl">Výška sekcí</span>
+        <span class="cust-val" id="vSpacing">110px</span>
+      </div>
+      <input type="range" class="cust-range" id="rSpacing" min="50" max="160" value="110" step="10">
+
+      <div class="cust-row">
+        <span class="cust-lbl">Průhlednost navbaru</span>
+        <span class="cust-val" id="vNavOp">96%</span>
+      </div>
+      <input type="range" class="cust-range" id="rNavOp" min="60" max="100" value="96" step="1">
+    </div>
+
+    <!-- EFEKTY -->
+    <div class="cust-sec">
+      <div class="cust-sec-label">Efekty</div>
+      <div class="cust-sw-row">
+        <span class="cust-lbl">Animace při scrollu</span>
+        <label class="cust-sw">
+          <input type="checkbox" id="swAnim" checked>
+          <span class="sw-track"></span>
+        </label>
+      </div>
+      <div class="cust-sw-row">
+        <span class="cust-lbl">Vlastní kurzor</span>
+        <label class="cust-sw">
+          <input type="checkbox" id="swCursor">
+          <span class="sw-track"></span>
+        </label>
+      </div>
+      <div class="cust-sw-row">
+        <span class="cust-lbl">Parallax efekt</span>
+        <label class="cust-sw">
+          <input type="checkbox" id="swParallax" checked>
+          <span class="sw-track"></span>
+        </label>
+      </div>
+    </div>
+
+    <button class="cust-reset-btn" id="custReset">↺ Obnovit výchozí nastavení</button>
+  </div>
+</div>
+
+<script>
+(function() {
+  var fab     = document.getElementById('custFab');
+  var panel   = document.getElementById('custPanel');
+  var closeBtn= document.getElementById('custClose');
+  var root    = document.documentElement;
+
+  function openPanel()  { panel.classList.add('open');    fab.classList.add('hidden'); }
+  function closePanel() { panel.classList.remove('open'); fab.classList.remove('hidden'); }
+
+  fab.addEventListener('click', openPanel);
+  closeBtn.addEventListener('click', closePanel);
+
+  /* ── helpers ── */
+  function setProp(name, val) { root.style.setProperty(name, val); }
+
+  function hexToRgb(hex) {
+    var r = parseInt(hex.slice(1,3),16);
+    var g = parseInt(hex.slice(3,5),16);
+    var b = parseInt(hex.slice(5,7),16);
+    return r+','+g+','+b;
+  }
+
+  function getNavStyle() {
+    var s = document.getElementById('_custNavStyle');
+    if (!s) { s = document.createElement('style'); s.id='_custNavStyle'; document.head.appendChild(s); }
+    return s;
+  }
+
+  /* ── FONT SIZE ── */
+  var rFS = document.getElementById('rFontSize');
+  var vFS = document.getElementById('vFontSize');
+  rFS.addEventListener('input', function() {
+    root.style.fontSize = rFS.value + 'px';
+    vFS.textContent = rFS.value + 'px';
+  });
+
+  /* ── LINE HEIGHT ── */
+  var rLH = document.getElementById('rLineH');
+  var vLH = document.getElementById('vLineH');
+  rLH.addEventListener('input', function() {
+    var val = (rLH.value / 100).toFixed(2);
+    document.querySelectorAll('p, .service-text, .process-step-text, .hero-sub, .section-sub, .about-feature-text, .footer-desc').forEach(function(el) {
+      el.style.lineHeight = val;
+    });
+    vLH.textContent = val;
+  });
+
+  /* ── FONT WEIGHT ── */
+  var rFW = document.getElementById('rFontW');
+  var vFW = document.getElementById('vFontW');
+  rFW.addEventListener('input', function() {
+    document.querySelectorAll('p, .service-text, .process-step-text, .hero-sub, .section-sub, .footer-desc, .about-feature-text').forEach(function(el) {
+      el.style.fontWeight = rFW.value;
+    });
+    vFW.textContent = rFW.value;
+  });
+
+  /* ── COLORS ── */
+  document.getElementById('cGold').addEventListener('input', function() {
+    setProp('--gold', this.value);
+    setProp('--gold2', this.value);
+    setProp('--border', 'rgba('+hexToRgb(this.value)+',0.18)');
+    clearPresets();
+  });
+  document.getElementById('cNavy').addEventListener('input', function() {
+    setProp('--navy', this.value);
+    setProp('--navy2', this.value);
+    clearPresets();
+  });
+  document.getElementById('cCream').addEventListener('input', function() {
+    setProp('--cream', this.value);
+    setProp('--cream2', this.value);
+    clearPresets();
+  });
+
+  function clearPresets() {
+    document.querySelectorAll('.cust-preset').forEach(function(b){ b.classList.remove('active'); });
+  }
+
+  /* ── PRESETS ── */
+  var schemes = {
+    classic: { gold:'#c8a46a', navy:'#0b1b2b', cream:'#f8f4ee' },
+    ocean:   { gold:'#4fa8c5', navy:'#062030', cream:'#f0f7fc' },
+    forest:  { gold:'#7ab55c', navy:'#0f1e0f', cream:'#f2f7ee' },
+    mono:    { gold:'#a0a0a0', navy:'#111111', cream:'#f4f4f4' }
+  };
+  document.querySelectorAll('.cust-preset').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var s = schemes[btn.dataset.scheme];
+      if (!s) return;
+      setProp('--gold',  s.gold);  setProp('--gold2', s.gold);
+      setProp('--navy',  s.navy);  setProp('--navy2', s.navy);
+      setProp('--cream', s.cream); setProp('--cream2', s.cream);
+      setProp('--border','rgba('+hexToRgb(s.gold)+',0.18)');
+      document.getElementById('cGold').value  = s.gold;
+      document.getElementById('cNavy').value  = s.navy;
+      document.getElementById('cCream').value = s.cream;
+      clearPresets(); btn.classList.add('active');
+    });
+  });
+
+  /* ── BORDER RADIUS ── */
+  var rR = document.getElementById('rRadius');
+  var vR = document.getElementById('vRadius');
+  rR.addEventListener('input', function() {
+    setProp('--r', rR.value + 'px');
+    vR.textContent = rR.value + 'px';
+  });
+
+  /* ── SECTION SPACING ── */
+  var rSp = document.getElementById('rSpacing');
+  var vSp = document.getElementById('vSpacing');
+  rSp.addEventListener('input', function() {
+    document.querySelectorAll('.services,.about,.categories,.process,.gallery,.brands,.contact').forEach(function(el) {
+      el.style.paddingTop    = rSp.value + 'px';
+      el.style.paddingBottom = rSp.value + 'px';
+    });
+    vSp.textContent = rSp.value + 'px';
+  });
+
+  /* ── NAV OPACITY ── */
+  var rNO = document.getElementById('rNavOp');
+  var vNO = document.getElementById('vNavOp');
+  rNO.addEventListener('input', function() {
+    var op = (rNO.value / 100).toFixed(2);
+    var navColor = document.getElementById('cNavy').value || '#0b1b2b';
+    getNavStyle().textContent = '.nav.scrolled { background: rgba('+hexToRgb(navColor)+','+op+') !important; }';
+    vNO.textContent = rNO.value + '%';
+  });
+
+  /* ── ANIMATIONS ── */
+  document.getElementById('swAnim').addEventListener('change', function() {
+    if (!this.checked) {
+      document.querySelectorAll('.reveal').forEach(function(el) {
+        el.style.opacity = '1'; el.style.transform = 'none'; el.style.transition = 'none';
+        el.classList.add('visible');
+      });
+    } else {
+      document.querySelectorAll('.reveal').forEach(function(el) {
+        el.style.opacity = ''; el.style.transform = ''; el.style.transition = '';
+      });
+    }
+  });
+
+  /* ── CURSOR ── */
+  document.getElementById('swCursor').addEventListener('change', function() {
+    var cur = document.getElementById('cursor');
+    var rng = document.getElementById('cursorRing');
+    if (this.checked) {
+      document.body.style.cursor = 'none';
+      if (cur) cur.style.display = ''; if (rng) rng.style.display = '';
+    } else {
+      document.body.style.cursor = 'auto';
+      if (cur) cur.style.display = 'none'; if (rng) rng.style.display = 'none';
+    }
+  });
+
+  /* ── PARALLAX ── */
+  document.getElementById('swParallax').addEventListener('change', function() {
+    parallaxEnabled = this.checked;
+    if (!this.checked) {
+      var hb = document.querySelector('.hero-bg');
+      if (hb) hb.style.transform = '';
+    }
+  });
+
+  /* ── RESET ── */
+  document.getElementById('custReset').addEventListener('click', function() {
+    /* CSS vars */
+    root.style.fontSize = '16px';
+    setProp('--gold','#4fa8c5'); setProp('--gold2','#72c0d8');
+    setProp('--navy','#062030'); setProp('--navy2','#0a2d44');
+    setProp('--cream','#f0f7fc'); setProp('--cream2','#dceef8');
+    setProp('--r','16px'); setProp('--border','rgba(79,168,197,0.18)');
+    /* inputs */
+    rFS.value=16; vFS.textContent='16px';
+    rLH.value=160; vLH.textContent='1.60';
+    rFW.value=400; vFW.textContent='400';
+    rR.value=16; vR.textContent='16px';
+    rSp.value=110; vSp.textContent='110px';
+    rNO.value=96; vNO.textContent='96%';
+    document.getElementById('cGold').value='#4fa8c5';
+    document.getElementById('cNavy').value='#062030';
+    document.getElementById('cCream').value='#f0f7fc';
+    clearPresets();
+    document.querySelector('.cust-preset[data-scheme="ocean"]').classList.add('active');
+    /* section spacing */
+    document.querySelectorAll('.services,.about,.categories,.process,.gallery,.brands,.contact').forEach(function(el) {
+      el.style.paddingTop=''; el.style.paddingBottom='';
+    });
+    /* text styles */
+    document.querySelectorAll('p,.service-text,.process-step-text,.hero-sub,.section-sub,.footer-desc,.about-feature-text').forEach(function(el) {
+      el.style.lineHeight=''; el.style.fontWeight='';
+    });
+    /* nav style */
+    getNavStyle().textContent='';
+    /* toggles */
+    document.getElementById('swAnim').checked=true;
+    document.getElementById('swCursor').checked=false;
+    document.getElementById('swParallax').checked=true;
+    parallaxEnabled=true;
+    document.body.style.cursor='auto';
+    var cur=document.getElementById('cursor'), rng=document.getElementById('cursorRing');
+    if(cur) cur.style.display='none'; if(rng) rng.style.display='none';
+    /* reveal reset */
+    document.querySelectorAll('.reveal').forEach(function(el) {
+      el.style.opacity=''; el.style.transform=''; el.style.transition='';
+    });
+  });
+})();
+</script>
+</body>
+</html>
